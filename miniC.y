@@ -32,7 +32,7 @@
     ListaC codigo;
 }
 
-%token BEGINN END READ WRITE LPAREN RPAREN SEMICOLON COMMA ASSIGNOP PLUSOP MINUSOP REALLIT LBIGOTE RBIGOTE VAR CONSTANT IF ELSE DO WHILE MULT DIV
+%token BEGINN END READ WRITE LPAREN RPAREN SEMICOLON COMMA ASSIGNOP PLUSOP MINUSOP REALLIT LBIGOTE RBIGOTE VAR CONSTANT IF ELSE DO WHILE FOR MULT DIV
 %token <lexema> INTLITERAL
 %token <lexema> ID
 %token <lexema> STRING
@@ -301,6 +301,97 @@ statement   :   ID ASSIGNOP expression SEMICOLON                {if (!perteneceT
                                                                 etiqueta.arg2 = NULL;
                                                                 insertaLC($$, pos, etiqueta);
                                                                 }
+    | FOR LPAREN ID ASSIGNOP expression SEMICOLON expression SEMICOLON ID ASSIGNOP expression RPAREN statement 
+                                                                {if (!perteneceTablaS($3)){ printf ("Error Semantico: Variable %s no declarada\n", $3); $$=creaLC(); error = 1;}
+                                                                    else if (esConstante($3)){ printf ("Error Semantico: Asignación a constante\n"); $$=creaLC(); error = 1;}
+                                                                        else
+                                                                        {
+                                                                            char * aux = malloc(sizeof(char)*(strlen($3)+1)) ;
+                                                                            aux[0] = '_';
+                                                                            PosicionListaC pos = finalLC($5);
+
+
+                                                                            Operacion nueva;
+                                                                            nueva.op = "sw";
+                                                                            nueva.res = recuperaResLC($5);
+                                                                            nueva.arg1 = strcat(aux,$3);
+                                                                            nueva.arg2 = NULL;
+                                                                            insertaLC($5, pos, nueva);
+                                                                            $$ = $5;
+                                                                            liberarReg(nueva.res);
+                                                                        }
+                                                                
+                                                                char * etiq2 = nuevaEtiqueta();
+                                                                PosicionListaC pos = finalLC($$);
+                                                                Operacion etiqueta2;
+                                                                char * aux2 = strdup(etiq2);
+                                                                long unsigned int t2 = strlen(aux2);
+                                                                etiqueta2.op = realloc(aux2, sizeof(char)*(t2+1));
+                                                                etiqueta2.op[t2] = ':';
+                                                                etiqueta2.res = NULL;
+                                                                etiqueta2.arg1 = NULL;
+                                                                etiqueta2.arg2 = NULL;
+                                                                insertaLC($$, pos, etiqueta2);
+
+                                                                concatenaLC($$, $7);
+                                                                
+
+                                                                pos = finalLC($$);
+                                                                
+                                                                Operacion nueva;
+                                                                nueva.op = "beqz";
+                                                                nueva.res = recuperaResLC($7);
+                                                                char * etiq = nuevaEtiqueta();
+                                                                nueva.arg1 = etiq;
+                                                                nueva.arg2 = NULL;
+                                                                insertaLC($$, pos, nueva);
+
+                                                                liberarReg(recuperaResLC($7));
+                                                                liberaLC($7);
+
+                                                                concatenaLC($$, $13);
+                                                                liberaLC($13);
+
+                                                                if (!perteneceTablaS($9)){ printf ("Error Semantico: Variable %s no declarada\n", $3);  error = 1;}
+                                                                    else if (esConstante($9)){ printf ("Error Semantico: Asignación a constante\n"); error = 1;}
+                                                                        else
+                                                                        {
+                                                                            char * aux = malloc(sizeof(char)*(strlen($9)+1)) ;
+                                                                            aux[0] = '_';
+                                                                            PosicionListaC pos = finalLC($11);
+
+
+                                                                            Operacion nueva;
+                                                                            nueva.op = "sw";
+                                                                            nueva.res = recuperaResLC($11);
+                                                                            nueva.arg1 = strcat(aux,$9);
+                                                                            nueva.arg2 = NULL;
+                                                                            insertaLC($11, pos, nueva);
+                                                                            liberarReg(nueva.res);
+
+                                                                            concatenaLC($$, $11);
+                                                                            liberaLC($11);
+                                                                        }
+
+                                                                pos = finalLC($$);
+                                                                Operacion incondicional;
+                                                                incondicional.op = "b";
+                                                                incondicional.res = etiq2;
+                                                                incondicional.arg1 = NULL;
+                                                                incondicional.arg2 = NULL;
+                                                                insertaLC($$, pos, incondicional);
+
+                                                                pos = finalLC($$);
+                                                                Operacion etiqueta;
+                                                                char * aux = strdup(etiq);
+                                                                long unsigned int t = strlen(aux);
+                                                                etiqueta.op = realloc(aux, sizeof(char)*(t+1));
+                                                                etiqueta.op[t] = ':';
+                                                                etiqueta.res = NULL;
+                                                                etiqueta.arg1 = NULL;
+                                                                etiqueta.arg2 = NULL;
+                                                                insertaLC($$, pos, etiqueta);
+                                                                } 
     | WRITE print_list SEMICOLON                                {  $$ = $2; }
     | READ read_list SEMICOLON                                  {  $$ = $2; }
     ;

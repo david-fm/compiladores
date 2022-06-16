@@ -38,6 +38,7 @@ else                                        return ELSE;
 while                                       return WHILE;
 read                                        return READ;
 do                                          return DO;
+for                                         return FOR;
 
 ({letra}|_)({letra}|{digito}|_)*            return idComprobacion();
 {entero}                                    return enteroComprobacion(atoll(yytext));
