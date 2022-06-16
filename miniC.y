@@ -32,7 +32,7 @@
     ListaC codigo;
 }
 
-%token BEGINN END READ WRITE LPAREN RPAREN SEMICOLON COMMA ASSIGNOP PLUSOP MINUSOP REALLIT LBIGOTE RBIGOTE VAR CONSTANT IF ELSE WHILE MULT DIV
+%token BEGINN END READ WRITE LPAREN RPAREN SEMICOLON COMMA ASSIGNOP PLUSOP MINUSOP REALLIT LBIGOTE RBIGOTE VAR CONSTANT IF ELSE DO WHILE MULT DIV
 %token <lexema> INTLITERAL
 %token <lexema> ID
 %token <lexema> STRING
@@ -228,6 +228,59 @@ statement   :   ID ASSIGNOP expression SEMICOLON                {if (!perteneceT
 
                                                                 concatenaLC($$, $5);
                                                                 liberaLC($5);
+
+                                                                pos = finalLC($$);
+                                                                Operacion incondicional;
+                                                                incondicional.op = "b";
+                                                                incondicional.res = etiq2;
+                                                                incondicional.arg1 = NULL;
+                                                                incondicional.arg2 = NULL;
+                                                                insertaLC($$, pos, incondicional);
+
+                                                                pos = finalLC($$);
+                                                                Operacion etiqueta;
+                                                                char * aux = strdup(etiq);
+                                                                long unsigned int t = strlen(aux);
+                                                                etiqueta.op = realloc(aux, sizeof(char)*(t+1));
+                                                                etiqueta.op[t] = ':';
+                                                                etiqueta.res = NULL;
+                                                                etiqueta.arg1 = NULL;
+                                                                etiqueta.arg2 = NULL;
+                                                                insertaLC($$, pos, etiqueta);
+                                                                }
+    | DO statement WHILE LPAREN expression RPAREN SEMICOLON     {$$ = creaLC();
+                                                                concatenaLC($$, $2);
+
+                                                                char * etiq2 = nuevaEtiqueta();
+                                                                PosicionListaC pos = finalLC($$);
+                                                                Operacion etiqueta2;
+                                                                char * aux2 = strdup(etiq2);
+                                                                long unsigned int t2 = strlen(aux2);
+                                                                etiqueta2.op = realloc(aux2, sizeof(char)*(t2+1));
+                                                                etiqueta2.op[t2] = ':';
+                                                                etiqueta2.res = NULL;
+                                                                etiqueta2.arg1 = NULL;
+                                                                etiqueta2.arg2 = NULL;
+                                                                insertaLC($$, pos, etiqueta2);
+
+                                                                concatenaLC($$, $5);
+                                                                
+
+                                                                pos = finalLC($$);
+                                                                
+                                                                Operacion nueva;
+                                                                nueva.op = "beqz";
+                                                                nueva.res = recuperaResLC($5);
+                                                                char * etiq = nuevaEtiqueta();
+                                                                nueva.arg1 = etiq;
+                                                                nueva.arg2 = NULL;
+                                                                insertaLC($$, pos, nueva);
+
+                                                                liberarReg(recuperaResLC($5));
+                                                                liberaLC($5);
+
+                                                                concatenaLC($$, $2);
+                                                                liberaLC($2);
 
                                                                 pos = finalLC($$);
                                                                 Operacion incondicional;

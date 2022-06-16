@@ -1,0 +1,18 @@
+/********
+ * Fichero de prueba nº 1
+ ********/
+
+void prueba() {
+    // Declaraciones
+    const a=0, b=0;
+    var c=5+20-20;
+    // Sentencias
+    print "Inicio del programa\n";
+    if (a) print "a","\n";
+    else if (b) print "No a y b\n";
+         else do{
+    	print "c =",c,"\n";
+    	c = c-2+1;
+    } while (c);
+    print "Final","\n";
+}
